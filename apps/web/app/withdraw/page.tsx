@@ -1,6 +1,237 @@
-'use client';
+﻿'use client';
+
 import Link from 'next/link';
-import {useEffect,useMemo,useState} from 'react';
-import {api,money,go} from '../../lib/api';
-const methods=[{id:'tmoney',name:'TMoney',hint:'Togocel Money',mark:'T'},{id:'moov',name:'Moov Money',hint:'Flooz / Moov',mark:'M'},{id:'mixx',name:'Mixx',hint:'Mixx by Yas',mark:'X'}];const amounts=[1000,2000,3000,5000,10000,20000,50000,100000];
-export default function WithdrawPage(){const [wallet,setWallet]=useState<any>({});const [amount,setAmount]=useState(1000);const [custom,setCustom]=useState('');const [method,setMethod]=useState('tmoney');const [phone,setPhone]=useState('');const [loading,setLoading]=useState(false);const [msg,setMsg]=useState('');const value=Number(custom||amount||0);const selected=useMemo(()=>methods.find(x=>x.id===method),[method]);useEffect(()=>{api('/wallet').then(setWallet).catch(()=>go('/login'))},[]);async function submit(){setMsg('');if(!Number.isFinite(value)||value<1000){setMsg('Le retrait minimum est de 1 000 XOF.');return;}if(phone.replace(/\D/g,'').length<8){setMsg('Entrez un numéro de téléphone valide.');return;}setLoading(true);try{await api('/withdrawals',{method:'POST',body:JSON.stringify({amount:value,destination:{method,phone}})});setMsg('Demande de retrait envoyée. Votre demande sera traitée selon le statut du prestataire.');setWallet((w:any)=>({...w,balance:Math.max(0,Number(w?.balance||0)-value)});}catch(e:any){setMsg(e.message||'Impossible de demander le retrait.')}finally{setLoading(false)}}return <main className="money-page"><div className="container money-shell"><div className="money-top"><Link href="/dashboard" className="money-back">←</Link><div><h1>Retrait</h1><p>Retirez vos fonds rapidement et en toute sécurité.</p></div></div><section className="money-card money-balance"><div><span>Solde disponible</span><strong>{money(wallet?.balance)}</strong></div><div className="money-currency">🇹🇬 XOF (CFA)</div><div className="money-bonus">🛡️ <b>Retrait sécurisé</b> <span>24 h max.</span></div></section><section className="money-card"><h2>Méthode de retrait</h2><div className="method-grid">{methods.map(m=><button type="button" onClick={()=>setMethod(m.id)} className={'method-choice '+(method===m.id?'selected':'')} key={m.id}><span className={'method-mark '+m.id}>{m.mark}</span><span><b>{m.name}</b><small>{m.hint}</small></span></button>)}</div></section><section className="money-card"><h2>Montant du retrait</h2><div className="amount-grid">{amounts.map(v=><button type="button" key={v} onClick={()=>{setAmount(v);setCustom('')}} className={'amount-choice '+(!custom&&amount===v?'selected':'')}>{money(v)}</button>)}</div><label className="money-label">Montant personnalisé</label><div className="money-input-wrap"><input className="money-input" inputMode="numeric" value={custom} onChange={e=>setCustom(e.target.value.replace(/\D/g,''))} placeholder="Entrez le montant"/><span>XOF</span></div><label className="money-label">Numéro {selected?.name}</label><div className="money-input-wrap"><input className="money-input" inputMode="tel" value={phone} onChange={e=>setPhone(e.target.value)} placeholder="Ex. 90 00 00 00"/><span>🇹🇬 +228</span></div></section><section className="money-summary"><div><span>Opérateur</span><b>{selected?.name}</b></div><div><span>Montant à retirer</span><b>{money(value)}</b></div><div><span>Frais de transaction</span><b>0 XOF</b></div></section><button className="money-submit" onClick={submit} disabled={loading}>{loading?'Envoi de la demande…':'↗ Demander le retrait'}</button><p className="money-note">Le retrait est sécurisé et traité via notre partenaire de paiement.</p>{msg&&<p className={msg.startsWith('Demande')?'success':'error'}>{msg}</p>}</div></main>}
+import { useEffect, useMemo, useState } from 'react';
+import { api, money, go } from '../../lib/api';
+
+const methods = [
+  {
+    id: 'tmoney',
+    name: 'TMoney',
+    hint: 'Togocel Money',
+    mark: 'T',
+  },
+  {
+    id: 'moov',
+    name: 'Moov Money',
+    hint: 'Flooz / Moov',
+    mark: 'M',
+  },
+  {
+    id: 'mixx',
+    name: 'Mixx',
+    hint: 'Mixx by Yas',
+    mark: 'X',
+  },
+];
+
+const amounts = [1000, 2000, 3000, 5000, 10000, 20000, 50000, 100000];
+
+export default function WithdrawPage() {
+  const [wallet, setWallet] = useState<any>({});
+  const [amount, setAmount] = useState(1000);
+  const [custom, setCustom] = useState('');
+  const [method, setMethod] = useState('tmoney');
+  const [phone, setPhone] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState('');
+
+  const value = Number(custom || amount || 0);
+
+  const selected = useMemo(
+    () => methods.find((x) => x.id === method),
+    [method]
+  );
+
+  useEffect(() => {
+    api('/wallet')
+      .then(setWallet)
+      .catch(() => go('/login'));
+  }, []);
+
+  async function submit() {
+    setMsg('');
+
+    if (!Number.isFinite(value) || value < 1000) {
+      setMsg('Le retrait minimum est de 1 000 XOF.');
+      return;
+    }
+
+    if (phone.replace(/\D/g, '').length < 8) {
+      setMsg('Entrez un numéro de téléphone valide.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await api('/withdrawals', {
+        method: 'POST',
+        body: JSON.stringify({
+          amount: value,
+          destination: {
+            method,
+            phone,
+          },
+        }),
+      });
+
+      setMsg(
+        'Demande de retrait envoyée. Votre demande sera traitée selon le statut du prestataire.'
+      );
+
+      setWallet((w: any) => ({
+        ...w,
+        balance: Math.max(0, Number(w?.balance || 0) - value),
+      }));
+    } catch (e: any) {
+      setMsg(e.message || 'Impossible de demander le retrait.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <main className="money-page">
+      <div className="container money-shell">
+        <div className="money-top">
+          <Link href="/dashboard" className="money-back">
+            ←
+          </Link>
+
+          <div>
+            <h1>Retrait</h1>
+            <p>Retirez vos fonds rapidement et en toute sécurité.</p>
+          </div>
+        </div>
+
+        <section className="money-card money-balance">
+          <div>
+            <span>Solde disponible</span>
+            <strong>{money(wallet?.balance)}</strong>
+          </div>
+
+          <div className="money-currency">🇹🇬 XOF (CFA)</div>
+
+          <div className="money-bonus">
+            🛡️ <b>Retrait sécurisé</b> <span>24 h max.</span>
+          </div>
+        </section>
+
+        <section className="money-card">
+          <h2>Méthode de retrait</h2>
+
+          <div className="method-grid">
+            {methods.map((m) => (
+              <button
+                type="button"
+                onClick={() => setMethod(m.id)}
+                className={
+                  'method-choice ' + (method === m.id ? 'selected' : '')
+                }
+                key={m.id}
+              >
+                <span className={'method-mark ' + m.id}>{m.mark}</span>
+
+                <span>
+                  <b>{m.name}</b>
+                  <small>{m.hint}</small>
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="money-card">
+          <h2>Montant du retrait</h2>
+
+          <div className="amount-grid">
+            {amounts.map((v) => (
+              <button
+                type="button"
+                key={v}
+                onClick={() => {
+                  setAmount(v);
+                  setCustom('');
+                }}
+                className={
+                  'amount-choice ' +
+                  (!custom && amount === v ? 'selected' : '')
+                }
+              >
+                {money(v)}
+              </button>
+            ))}
+          </div>
+
+          <label className="money-label">Montant personnalisé</label>
+
+          <div className="money-input-wrap">
+            <input
+              className="money-input"
+              inputMode="numeric"
+              value={custom}
+              onChange={(e) =>
+                setCustom(e.target.value.replace(/\D/g, ''))
+              }
+              placeholder="Entrez le montant"
+            />
+            <span>XOF</span>
+          </div>
+
+          <label className="money-label">
+            Numéro {selected?.name}
+          </label>
+
+          <div className="money-input-wrap">
+            <input
+              className="money-input"
+              inputMode="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="Ex. 90 00 00 00"
+            />
+            <span>🇹🇬 +228</span>
+          </div>
+        </section>
+
+        <section className="money-summary">
+          <div>
+            <span>Opérateur</span>
+            <b>{selected?.name}</b>
+          </div>
+
+          <div>
+            <span>Montant à retirer</span>
+            <b>{money(value)}</b>
+          </div>
+
+          <div>
+            <span>Frais de transaction</span>
+            <b>0 XOF</b>
+          </div>
+        </section>
+
+        <button
+          className="money-submit"
+          onClick={submit}
+          disabled={loading}
+        >
+          {loading
+            ? 'Envoi de la demande…'
+            : '↗ Demander le retrait'}
+        </button>
+
+        <p className="money-note">
+          Le retrait est sécurisé et traité via notre partenaire de paiement.
+        </p>
+
+        {msg && (
+          <p className={msg.startsWith('Demande') ? 'success' : 'error'}>
+            {msg}
+          </p>
+        )}
+      </div>
+    </main>
+  );
+}
