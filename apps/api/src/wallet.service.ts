@@ -1,0 +1,1 @@
+import {Injectable}from'@nestjs/common';import {PrismaService}from'./prisma.service';@Injectable()export class WalletService{constructor(private p:PrismaService){}get(id:string){return this.p.wallet.findUnique({where:{userId:id}})}tx(id:string){return this.p.transaction.findMany({where:{userId:id},orderBy:{createdAt:'desc'}})}}

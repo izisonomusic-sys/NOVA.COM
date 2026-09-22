@@ -1,0 +1,3 @@
+-- DEPRECATED: do not run this legacy file.
+-- Winner's live schema is maintained in supabase/migrations and was applied to project ref hagjibqjpytkwpktdbnx.
+-- Use the Supabase CLI migrations or the existing live project instead of recreating the database from this file.

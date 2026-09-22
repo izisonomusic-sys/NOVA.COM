@@ -1,0 +1,4 @@
+project_id = "hagjibqjpytkwpktdbnx"
+
+[functions.paydunya-webhook]
+verify_jwt = false

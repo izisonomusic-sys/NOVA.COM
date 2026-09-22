@@ -1,0 +1,3 @@
+-- Winner database baseline.
+-- The live schema is owned by Supabase migrations under /supabase/migrations.
+-- This Prisma migration is intentionally a no-op so `prisma migrate deploy` does not recreate the schema.

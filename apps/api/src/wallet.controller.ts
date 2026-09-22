@@ -1,0 +1,1 @@
+import {Controller,Get,Req,UseGuards} from '@nestjs/common';import {JwtAuthGuard} from './auth.guard';import {WalletService} from './wallet.service';@Controller('wallet')@UseGuards(JwtAuthGuard)export class WalletController{constructor(private s:WalletService){}@Get()get(@Req()q:any){return this.s.get(q.user.sub)}@Get('transactions')tx(@Req()q:any){return this.s.tx(q.user.sub)}}

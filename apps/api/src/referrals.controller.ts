@@ -1,0 +1,1 @@
+import {Controller,Get,Req,UseGuards}from '@nestjs/common';import {JwtAuthGuard}from './auth.guard';import {ReferralsService}from './referrals.service';@Controller('referrals')@UseGuards(JwtAuthGuard)export class ReferralsController{constructor(private s:ReferralsService){}@Get()g(@Req()q:any){return this.s.get(q.user.sub)}}
