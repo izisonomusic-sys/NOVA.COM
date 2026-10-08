@@ -59,7 +59,7 @@ export default function Referrals(){
 
        <div>
          <span className="muted">Prime par filleul</span>
-         <div className="stat">500 XOF</div>
+         <div className="stat">250 XOF</div>
        </div>
      </div>
 
@@ -67,7 +67,7 @@ export default function Referrals(){
        <b>Règle du bonus</b>
        <p className="muted">
          Quand votre filleul crée son compte et effectue son premier dépôt confirmé,
-         500 XOF sont crédités sur votre compte principal et 500 XOF sur le compte
+         250 XOF sont crédités sur votre compte principal et 250 XOF sur le compte
          principal du filleul. Pour demander un retrait, vous devez avoir investi
          au moins une fois dans un projet.
        </p>
