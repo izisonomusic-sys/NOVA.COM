@@ -3,10 +3,11 @@ import { createHash, timingSafeEqual, randomUUID } from 'crypto';
 import { PayDunyaPaymentProvider } from './payments/paydunya.provider';
 import { SupabaseFinanceService } from './supabase-finance.service';
 import { externalApis } from './config-external-apis';
+import { WithdrawalsService } from './withdrawals.service';
 
 @Injectable()
 export class PaymentsService {
-  constructor(private s:PayDunyaPaymentProvider, private db:SupabaseFinanceService) {}
+  constructor(private s:PayDunyaPaymentProvider, private db:SupabaseFinanceService, private withdrawals:WithdrawalsService) {}
 
   async deposit(uid:string, amount:number, operator='card') {
     if(!Number.isFinite(amount)||amount<1000) throw new BadRequestException('Le dépôt minimum est de 1 000 XOF.');
@@ -46,6 +47,9 @@ export class PaymentsService {
     if(!data||typeof data!=='object') throw new BadRequestException('Payload PayDunya invalide');
     if(externalApis.paydunya.masterKey&&!this.verifyHash(String(data.hash||''))) throw new UnauthorizedException('Webhook PayDunya non authentifié');
 
+    if(data?.withdraw_mode && (data?.disburse_id || data?.disburse_tx_id || data?.transaction_id)){
+      return this.withdrawals.webhook(data);
+    }
     const token=String(data?.invoice?.token||data?.token||data?.provider_reference||'');
     const status=String(data?.status||data?.payment_status||'pending').toLowerCase();
     if(!token) throw new BadRequestException('Référence PayDunya manquante');
